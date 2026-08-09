@@ -19,13 +19,24 @@ const game = new Phaser.Game(config);
 let player;
 let zombies;
 let cursors;
-let hp = 100;
+let hp;
 let hpText;
-let lastDamageTime = 0;
+let lastDamageTime;
+
+// タイマー関連変数
+let timeLeft;
+let timerText;
+let isGameOver;
 
 function preload() {}
 
 function create() {
+  // --- 変数の初期化（リトライ時に状態をリセットするため） ---
+  hp = 100;
+  timeLeft = 30;
+  lastDamageTime = 0;
+  isGameOver = false;
+
   // 学校の建物（灰色の四角）
   const graphics = this.add.graphics();
   graphics.fillStyle(0x888888);
@@ -42,7 +53,7 @@ function create() {
 
   // ゾンビグループ
   zombies = this.physics.add.group();
-  // ゾンビを4体追加
+  this.physics.add.collider(zombies, zombies);
   const positions = [
     { x: 50, y: 50 },
     { x: 750, y: 50 },
@@ -58,15 +69,40 @@ function create() {
   // キーボード設定
   cursors = this.input.keyboard.createCursorKeys();
 
-  // HPテキスト
+  // HPテキスト（左上）
   hpText = this.add.text(16, 16, 'HP: 100', {
     fontSize: '24px',
     fill: '#ffffff'
   });
+
+  // タイマーテキスト（右上）
+  timerText = this.add.text(650, 16, 'TIME: ' + timeLeft, {
+    fontSize: '24px',
+    fill: '#ffffff'
+  });
+
+  // 1秒ごとに実行されるタイマーイベント
+  this.time.addEvent({
+    delay: 1000,
+    callback: onTimerEvent,
+    callbackScope: this,
+    loop: true
+  });
+
+  // --- クリック（タップ）でのリトライイベント設定 ---
+  this.input.on('pointerdown', () => {
+    // ゲームオーバーまたはクリア時のみシーンを再起動
+    if (isGameOver) {
+      this.scene.restart();
+    }
+  });
 }
 
 function update(time) {
-  // プレイヤーの移動
+  // ゲーム終了時は操作を受け付けない
+  if (isGameOver) return;
+
+  // プレイヤーの移動処理
   player.body.setVelocity(0);
   if (cursors.left.isDown) player.body.setVelocityX(-200);
   if (cursors.right.isDown) player.body.setVelocityX(200);
@@ -77,7 +113,7 @@ function update(time) {
   zombies.getChildren().forEach(zombie => {
     this.physics.moveToObject(zombie, player, 80);
 
-    // ゾンビがプレイヤーに触れたらダメージ
+    // ゾンビとプレイヤーの接触判定（ダメージ処理）
     const distance = Phaser.Math.Distance.Between(
       zombie.x, zombie.y, player.x, player.y
     );
@@ -86,11 +122,43 @@ function update(time) {
       lastDamageTime = time;
       hpText.setText('HP: ' + hp);
 
+      // HPゼロでゲームオーバー処理
       if (hp <= 0) {
-        hpText.setText('ゲームオーバー');
-        player.body.setVelocity(0);
-        cursors = {};
+        showEndScreen(this, 'GAME OVER', '#ff0000');
       }
     }
   });
+}
+
+// タイマーイベント用関数
+function onTimerEvent() {
+  if (isGameOver) return;
+
+  timeLeft--;
+  timerText.setText('TIME: ' + timeLeft);
+
+  // 0秒でゲームクリア処理
+  if (timeLeft <= 0) {
+    showEndScreen(this, 'GAME CLEAR', '#ffff00');
+  }
+}
+
+// --- ゲーム終了画面の共通処理関数 ---
+function showEndScreen(scene, message, textColor) {
+  isGameOver = true;
+
+  // メインテキスト表示
+  scene.add.text(400, 260, message, {
+    fontSize: '64px',
+    fill: textColor
+  }).setOrigin(0.5);
+
+  // 案内テキスト（クリックで再挑戦）表示
+  scene.add.text(400, 340, 'Click to Restart', {
+    fontSize: '28px',
+    fill: '#ffffff'
+  }).setOrigin(0.5);
+
+  // 物理演算を停止
+  scene.physics.pause();
 }
