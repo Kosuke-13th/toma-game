@@ -66,6 +66,13 @@ class ClassroomScene extends Phaser.Scene {
       fontSize: '14px',
       fill: '#ffffff'
     });
+
+    // --- [追加] プレイヤーとゾンビが重ならないように衝突判定を追加 ---
+    this.physics.add.collider(this.player, this.zombies);
+
+    // --- [追加] ゾンビ同士も重ならないようにしたい場合はこちらも追加 ---
+    this.physics.add.collider(this.zombies, this.zombies);
+
   }
 
   update(time, delta) {
@@ -78,13 +85,27 @@ class ClassroomScene extends Phaser.Scene {
 
     // ゾンビがプレイヤーを追跡 + 接触ダメージ判定
     this.zombies.getChildren().forEach(zombie => {
-      this.physics.moveToObject(zombie, this.player, zombie.moveSpeed);
+      // --- 【改善①：重なり防止】速度を直接上書きせず、徐々に近づける（慣性を入れる） ---
+      // プレイヤーへの角度を計算
+      const angle = Phaser.Math.Angle.Between(zombie.x, zombie.y, this.player.x, this.player.y);
+      
+      // 目標となる速度
+      const targetVx = Math.cos(angle) * zombie.moveSpeed;
+      const targetVy = Math.sin(angle) * zombie.moveSpeed;
+      
+      // 現在の速度から目標速度へ、毎フレーム10%ずつ近づける（補間処理）
+      // これにより、コライダーによる「押し戻し（反発速度）」が消されずに残り、綺麗に滑り合って重ならなくなります
+      zombie.body.setVelocity(
+        Phaser.Math.Linear(zombie.body.velocity.x, targetVx, 0.1),
+        Phaser.Math.Linear(zombie.body.velocity.y, targetVy, 0.1)
+      );
 
+      // --- 【改善②：ダメージ判定】コライダーの密着(32px)を考慮して判定距離を35pxに広げる ---
       const distance = Phaser.Math.Distance.Between(
         zombie.x, zombie.y, this.player.x, this.player.y
       );
 
-      if (distance < 32 && time - this.lastDamageTime > this.damageInterval) {
+      if (distance < 35 && time - this.lastDamageTime > this.damageInterval) {
         this.hp -= zombie.damage;
         this.lastDamageTime = time;
         this.hpText.setText(`HP: ${Math.max(this.hp, 0)}`);
