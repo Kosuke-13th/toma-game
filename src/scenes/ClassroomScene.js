@@ -36,19 +36,20 @@ class ClassroomScene extends Phaser.Scene {
       fill: '#ffffff'
     });
 
-    // ゾンビ4体(段階②で追加。まだ通常タイプのみ、ステータスは仮の固定値)
-    this.zombies = this.physics.add.group();
+      this.zombies = this.physics.add.group();
     const positions = [
-      { x: 50, y: 50 },
-      { x: 750, y: 50 },
-      { x: 50, y: 550 },
-      { x: 750, y: 550 }
+      { x: 50,  y: 50,  type: 'normal' },
+      { x: 750, y: 50,  type: 'elite'  },
+      { x: 50,  y: 550, type: 'normal' },
+      { x: 750, y: 550, type: 'boss'   }
     ];
     positions.forEach(pos => {
-      const zombie = this.add.rectangle(pos.x, pos.y, 32, 32, 0x00aa00);
+      const stats = ZOMBIE_DATA[pos.type];
+      const zombie = this.add.rectangle(pos.x, pos.y, 32, 32, stats.color);
       this.physics.add.existing(zombie);
-      zombie.moveSpeed = 80;   // 仮値。後でzombieData.jsから読み込む形にする
-      zombie.damage = 10;      // 仮値。後でzombieData.jsから読み込む形にする
+      zombie.moveSpeed = stats.moveSpeed;
+      zombie.damage = stats.damage;
+      zombie.zombieType = pos.type; // 後でフェーズ6(掴み)で種類を見分けるために保持
       this.zombies.add(zombie);
     });
 
