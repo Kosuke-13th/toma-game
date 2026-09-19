@@ -67,12 +67,18 @@ class ClassroomScene extends Phaser.Scene {
       fill: '#ffffff'
     });
 
-    // --- [追加] プレイヤーとゾンビが重ならないように衝突判定を追加 ---
-    this.physics.add.collider(this.player, this.zombies);
+    // ゾンビ同士: 衝突の直前に「動かせる」状態へ戻す → 重なり防止が効く
+    this.physics.add.collider(this.zombies, this.zombies, null, (z1, z2) => {
+      z1.body.immovable = false;
+      z2.body.immovable = false;
+      return true; // 衝突処理を続行
+    });
 
-    // --- [追加] ゾンビ同士も重ならないようにしたい場合はこちらも追加 ---
-    this.physics.add.collider(this.zombies, this.zombies);
-
+    // プレイヤー vs ゾンビ: 衝突の直前にゾンビを「動かせない」状態にする → プレイヤーは押せない
+    this.physics.add.collider(this.player, this.zombies, null, (player, zombie) => {
+      zombie.body.immovable = true;
+      return true;
+    });
   }
 
   update(time, delta) {
