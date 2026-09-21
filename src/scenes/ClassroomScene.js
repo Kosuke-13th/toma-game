@@ -8,6 +8,10 @@ class ClassroomScene extends Phaser.Scene {
     super({ key: 'ClassroomScene' });
   }
 
+  init(data) {
+    this.buffs = data.buffs || [];
+  }
+
   preload() {
     // 画像のキーは、Tiled上のタイルセット名(tileset_school)と同じにする
     this.load.image('tileset_school', 'assets/images/tileset_school.png');
@@ -37,9 +41,11 @@ class ClassroomScene extends Phaser.Scene {
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
 
-    // HP管理(段階②で追加)
-    this.maxHp = 100;
+    // 準備フェーズで獲得したバフを脱出フェーズの初期値へ反映
+    this.maxHp = this.buffs.includes('hpUp') ? 150 : 100;
     this.hp = this.maxHp;
+    this.playerSpeed = this.buffs.includes('speedUp') ? 300 : 200;
+    this.isInvincible = this.buffs.includes('invincible');
     this.lastDamageTime = 0;
     this.damageInterval = 1000; // 被弾の無敵時間(ms)。後で難易度調整用に変数化
 
@@ -118,8 +124,7 @@ class ClassroomScene extends Phaser.Scene {
 
     // プレイヤー移動
     const move = this.inputManager.getMoveVector(0);
-    const speed = 200;
-    this.player.body.setVelocity(move.x * speed, move.y * speed);
+    this.player.body.setVelocity(move.x * this.playerSpeed, move.y * this.playerSpeed);
 
     // ゾンビがプレイヤーを追跡 + 接触ダメージ判定
     this.zombies.getChildren().forEach(zombie => {
@@ -140,7 +145,7 @@ class ClassroomScene extends Phaser.Scene {
         zombie.x, zombie.y, this.player.x, this.player.y
       );
 
-      if (distance < 35 && time - this.lastDamageTime > this.damageInterval) {
+      if (!this.isInvincible && distance < 35 && time - this.lastDamageTime > this.damageInterval) {
         this.hp -= zombie.damage;
         this.lastDamageTime = time;
         this.hpText.setText(`HP: ${Math.max(this.hp, 0)}`);
