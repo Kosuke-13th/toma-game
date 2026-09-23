@@ -40,6 +40,7 @@ class ClassroomScene extends Phaser.Scene {
     this.player = this.add.rectangle(entry.x, entry.y, 32, 32, 0x0000ff);
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
+    this.player.body.setSize(24, 24).setOffset(4, 4);  
 
     // 準備フェーズで獲得したバフを脱出フェーズの初期値へ反映
     this.maxHp = this.buffs.includes('hpUp') ? 150 : 100;
@@ -68,6 +69,7 @@ class ClassroomScene extends Phaser.Scene {
       const stats = ZOMBIE_DATA[pos.type];
       const zombie = this.add.rectangle(pos.x, pos.y, 32, 32, stats.color);
       this.physics.add.existing(zombie);
+      zombie.body.setSize(24, 24).setOffset(4, 4);
       zombie.moveSpeed = stats.moveSpeed;
       zombie.damage = stats.damage;
       zombie.zombieType = pos.type; // 後でフェーズ6(掴み)で種類を見分けるために保持

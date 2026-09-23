@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="8">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="11">
  <tileset firstgid="1" name="tileset_school" tilewidth="32" tileheight="32" tilecount="3" columns="3">
   <image source="tileset_school.png" width="96" height="32"/>
  </tileset>
@@ -50,5 +50,11 @@
    <point/>
   </object>
   <object id="6" name="goal" x="894.849" y="223.919" width="32.2245" height="96.6734"/>
+  <object id="8" name="exit_east" x="897.328" y="383.389" width="29.7457" height="96.6734">
+   <properties>
+    <property name="targetEntry" value="entry_west"/>
+    <property name="targetScene" value="CorridorScene"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

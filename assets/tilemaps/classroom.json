@@ -73,20 +73,43 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":47.9235701682661,
-                 "y":271.842320437234
+                 "x":47.9236,
+                 "y":271.842
                 }, 
                 {
-                 "height":96.6734087877093,
+                 "height":96.6734,
                  "id":6,
                  "name":"goal",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":32.2244695959031,
-                 "x":894.848732624693,
-                 "y":223.918750268968
+                 "width":32.2245,
+                 "x":894.849,
+                 "y":223.919
+                }, 
+                {
+                 "height":96.6734087877093,
+                 "id":8,
+                 "name":"exit_east",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"targetEntry",
+                         "type":"string",
+                         "value":"entry_west"
+                        }, 
+                        {
+                         "name":"targetScene",
+                         "type":"string",
+                         "value":"CorridorScene"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":29.7456642423721,
+                 "x":897.327537978224,
+                 "y":383.388561346129
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -95,7 +118,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":8,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",
